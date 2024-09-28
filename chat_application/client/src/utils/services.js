@@ -22,3 +22,20 @@ export const postRequest = async (url, body) => {
         alert("Something went wrong!!!");
     }
 };
+
+
+export const getRequest = async (url) => {
+    const api_url = baseUrl + url;
+    try {
+        const response = await fetch(api_url);
+        const data = await response.json();
+        if (!response.ok) {
+            const message = data?.message ? data.message : data;
+            return {error: true, message};
+        }
+        return data;
+
+    } catch (error) {
+        alert("Something went wrong!!!");
+    }
+}

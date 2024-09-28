@@ -51,7 +51,7 @@ const loginUser = async (req, res) => {
     }
 
     const token = createToken(user._id);
-    res.status(200).json({ token, name: user.name, email: user.email });
+    res.status(200).json({ token, name: user.name, email: user.email, _id: user._id });
 }
 
 const findUser = async (req, res) => {
