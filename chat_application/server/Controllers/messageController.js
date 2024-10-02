@@ -5,7 +5,7 @@ const createMessage = async (req, res) => {
     const { chatId, senderId, text } = req.body;
     const message = new messageModel({ chatId, senderId, text });
     const messageInstance = await message.save();
-    return res.status(201).json("Message sent");
+    return res.status(201).json(messageInstance);
 };
 
 // loading all chat messages
