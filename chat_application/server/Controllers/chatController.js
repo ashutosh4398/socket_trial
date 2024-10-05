@@ -14,7 +14,6 @@ const createChat = async (req, res) => {
 // get user chats
 const findUserChats = async (req, res) => {
     const { userId } = req.params; // extracted from url param
-    console.log("UserId", userId);
     const chats = await chatModel.find({ "members": { "$in": [userId] } });
     return res.status(200).json(chats);
 }
