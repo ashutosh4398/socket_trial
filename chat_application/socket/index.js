@@ -31,6 +31,11 @@ io.on("connection", socket => {
         }
         // send socket event to user
         io.to(user.socketId).emit("getMessage", message);
+        io.to(user.socketId).emit("getNotification", {
+            senderId: message.senderId,
+            isRead: false,
+            date: new Date(),
+        })
     });
 
     socket.on("disconnect", () => {
