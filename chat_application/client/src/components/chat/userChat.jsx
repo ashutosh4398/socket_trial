@@ -2,18 +2,26 @@ import { Stack } from "react-bootstrap";
 import { useFetchReceipentUser } from "../../hooks/useFetchReceipent";
 import { useContext } from "react";
 import { ChatContext } from "../../context/ChatContext";
+import { unreadNotificationsFunc } from "../../utils/unreadNotifications";
 
 const UserChat = ({ chat, user }) => {
   const { receipentUser } = useFetchReceipentUser(chat, user);
-  const {onlineUsers} = useContext(ChatContext);
-
+  const {onlineUsers, notifications, markUserNotificationAsRead} = useContext(ChatContext);
   const isOnline = onlineUsers?.some((user) => user?.userId === receipentUser?._id);
+
+  const unreadNotifications = unreadNotificationsFunc(notifications);
+  const thisUserNotifications = unreadNotifications?.filter(
+    n => n.senderId === receipentUser?._id
+  )
 
   return (
     <Stack
       direction="horizontal"
       gap={3}
       className="user-card align-items-center p-2 justify-content-between"
+      onClick={() => {
+        markUserNotificationAsRead(thisUserNotifications, notifications)
+      }}
     >
         <div className="d-flex">
             <div className="me-2" style={{
@@ -35,7 +43,7 @@ const UserChat = ({ chat, user }) => {
             <div className="date">
                 12/12/2024
             </div>
-            <div className="this-user-notifications">2</div>
+            <div className={thisUserNotifications?.length ? "this-user-notifications": ""}>{thisUserNotifications.length || ''}</div>
             <span className={isOnline? "user-online": ""}></span>
         </div>
     </Stack>

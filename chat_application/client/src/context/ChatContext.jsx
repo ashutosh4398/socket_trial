@@ -216,6 +216,19 @@ export const ChatContextProvider = ({ children, user }) => {
     setNotificatons(mNotifications);
   }, []);
 
+  const markUserNotificationAsRead = (userNotifications, notifications) => {
+    const mNotifications = notifications.map(el => {
+        let nf = el;
+        userNotifications.forEach(n => {
+            if (n.senderId === el.senderId) {
+                nf = {...n, isRead: true};
+            }
+        })
+        return nf;
+    });
+    setNotificatons(mNotifications);
+  }
+
   return (
     <ChatContext.Provider
       value={{
@@ -235,6 +248,7 @@ export const ChatContextProvider = ({ children, user }) => {
         allUsers,
         markAllNotificationsAsRead,
         markNotificationAsRead,
+        markUserNotificationAsRead,
       }}
     >
       {children}
