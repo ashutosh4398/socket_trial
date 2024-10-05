@@ -1,3 +1,4 @@
+const {Server} = require("socket.io");
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -20,7 +21,7 @@ app.use("/api/messages", messageRoute);
 
 const port = process.env.PORT || 5000;
 
-app.listen(port, (req, res) => {
+const expressServer = app.listen(port, (req, res) => {
     console.log(`Server running on port ${port}`);
 })
 
@@ -35,3 +36,50 @@ mongoose.connect(process.env.MONGO_CONNECTION_STRING, {
     console.log(error);
 })
 
+
+// stuff for socket io
+const io = new Server(expressServer, {"cors": "http://localhost:5173"});
+
+let onlineUsers = [];
+
+
+io.on("connection", socket => {
+    console.log("socket connected =>", socket.id);
+    
+    // listen to a connection
+    socket.on("addNewUser", userId => {
+        !onlineUsers.some(user => user.userId === userId) && (
+            onlineUsers.push({
+                userId,
+                socketId: socket.id
+            })
+        );
+
+        console.log(onlineUsers);
+        io.emit("getOnlineUsers", onlineUsers);
+
+    });
+
+    // add message
+    socket.on("sendMessage", (message) => {
+        const user = onlineUsers.find(user => user.userId === message.recipientId);
+        if (!user) {
+            // user is not online
+            return
+        }
+        // send socket event to user
+        io.to(user.socketId).emit("getMessage", message);
+        io.to(user.socketId).emit("getNotification", {
+            senderId: message.senderId,
+            isRead: false,
+            date: new Date(),
+        })
+    });
+
+    socket.on("disconnect", () => {
+        console.log("Disconnect called!!!!");
+        onlineUsers = onlineUsers.filter(user => user?.socketId !== socket.id);
+        io.emit("getOnlineUsers", onlineUsers);
+    });
+
+});
